@@ -13,8 +13,8 @@
         }
 
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5; /* Light grey background */
+            font-family: 'Roboto', sans-serif; /* Modern font */
+            background-color: #e0e0e0; /* Lighter grey background */
             color: #333;
             display: flex;
             flex-direction: column;
@@ -26,40 +26,45 @@
 
         .buttons-container {
             display: flex;
-            justify-content: center;
-            gap: 40px; /* Increase gap between buttons */
+            justify-content: space-evenly; /* Space out evenly */
+            align-items: center; /* Center vertically */
+            gap: 60px; /* Increase gap between buttons */
             margin-bottom: 30px;
+            width: 100%; /* Full width */
         }
 
         .lesson {
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center; /* Center vertically */
         }
 
         .lesson-title {
             font-size: 1.5rem;
             margin-bottom: 10px;
-            color: #4CAF50;
+            color: #005f73; /* Updated green color */
         }
 
         .lesson-button {
-            background-color: #4CAF50;
+            background-color: #005f73; /* Updated green color */
             color: white;
             font-size: 1.2rem;
-            width: 100px; /* Set fixed width */
-            height: 100px; /* Set fixed height */
+            width: 120px; /* Set fixed width */
+            height: 120px; /* Set fixed height */
             border: none;
-            border-radius: 10px; /* Rounded squares */
+            border-radius: 15px; /* More rounded corners */
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, transform 0.3s ease;
             display: flex;
             justify-content: center;
             align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add shadow */
         }
 
         .lesson-button:hover {
-            background-color: #45a049;
+            background-color: #004f63; /* Slightly darker shade for hover */
+            transform: translateY(-3px); /* Lift button on hover */
         }
 
         .sidebar {
@@ -67,16 +72,17 @@
             top: 0;
             left: 0;
             width: 200px;
-            height: 100%;
-            background-color: #333;
+            height: auto; /* Adjust height to fit content */
+            background-color: #666; /* Lighter grey */
             color: white;
             display: none;
             flex-direction: column;
             padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Add shadow */
         }
 
         .sidebar button {
-            background-color: #4CAF50;
+            background-color: #005f73; /* Updated green color */
             color: white;
             font-size: 1rem;
             padding: 10px;
@@ -84,21 +90,23 @@
             border-radius: 5px;
             cursor: pointer;
             margin-bottom: 10px;
+            transition: background-color 0.3s ease;
         }
 
         .sidebar button:hover {
-            background-color: #45a049;
+            background-color: #004f63; /* Slightly darker shade for hover */
         }
 
         .bottom-display {
             position: fixed;
             bottom: 0;
             width: 100%;
-            background-color: #333;
+            background-color: #666; /* Lighter grey */
             color: white;
             padding: 10px;
             text-align: center;
             display: none; /* Initially hidden */
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1); /* Add shadow */
         }
 
         .progress-bar-container {
@@ -118,17 +126,51 @@
             color: white;
             font-weight: bold;
         }
+
+        .answer-container {
+            margin-top: 20px;
+        }
+
+        .answer-input {
+            padding: 10px;
+            font-size: 1rem;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-right: 10px;
+        }
+
+        .answer-button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            background-color: #005f73;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .answer-button:hover {
+            background-color: #004f63;
+        }
+
+        .result-message {
+            margin-top: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"> <!-- Link to modern font -->
 </head>
 <body>
 
     <div class="buttons-container">
         <div class="lesson">
-            <div class="lesson-title">Lesson 1</div>
+            <div class="lesson-title"></div> <!-- Removed "Lesson 1" -->
             <button class="lesson-button" id="lesson1">ABC's</button>
         </div>
         <div class="lesson">
-            <div class="lesson-title">Lesson 2</div>
+            <div class="lesson-title"></div> <!-- Removed "Lesson 2" -->
             <button class="lesson-button" id="lesson2">Common English Words</button>
         </div>
     </div>
@@ -144,12 +186,22 @@
         <div class="progress-bar-container">
             <div class="progress-bar" id="progressBar">0%</div>
         </div>
+        <div class="answer-container">
+            <input type="text" id="answerInput" class="answer-input" placeholder="Answer:">
+            <button id="answerButton" class="answer-button">Submit</button>
+            <div id="resultMessage" class="result-message"></div>
+        </div>
     </div>
 
     <script>
-        let progress = 0;
+        let progress = { lesson1: 0, lesson2: 0 };
         let mode = "";
         let currentWord = "";
+        const commonEnglishWords = ["the", "be", "to", "of", "and", "a", "in", "that", "have", "I"]; // Only 10 words
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+        let wrongAnswers = {};
+        let correctAnswers = { lesson1: 0, lesson2: 0 };
+        let totalAttempts = { lesson1: 0, lesson2: 0 };
 
         // Elements
         const lesson1Button = document.getElementById("lesson1");
@@ -161,13 +213,18 @@
         const wordDisplay = document.getElementById("wordDisplay");
         const progressBar = document.getElementById("progressBar");
         const bottomDisplay = document.getElementById("bottomDisplay");
+        const answerInput = document.getElementById("answerInput");
+        const answerButton = document.getElementById("answerButton");
+        const resultMessage = document.getElementById("resultMessage");
 
         // Click event for ABC's (Lesson 1)
         lesson1Button.addEventListener("click", function() {
             sidebar.style.display = "flex";
             bottomDisplay.style.display = "block"; // Show bottom display
             currentWord = "Letter: ";
-            updateBottomDisplay();
+            promptNextLetter();
+            correctAnswers.lesson1 = 0;
+            totalAttempts.lesson1 = 0;
         });
 
         // Click event for Common English Words (Lesson 2)
@@ -175,7 +232,9 @@
             sidebar.style.display = "flex";
             bottomDisplay.style.display = "block"; // Show bottom display
             currentWord = "Word: ";
-            updateBottomDisplay();
+            promptNextWord();
+            correctAnswers.lesson2 = 0;
+            totalAttempts.lesson2 = 0;
         });
 
         // Click event for Testing Mode
@@ -199,8 +258,74 @@
 
         // Function to update progress bar
         function updateProgress() {
-            progressBar.style.width = progress + "%";
-            progressBar.textContent = progress + "%";
+            let lessonProgress;
+            if (currentWord.startsWith("Letter: ")) {
+                lessonProgress = (correctAnswers.lesson1 / totalAttempts.lesson1) * 100;
+            } else if (currentWord.startsWith("Word: ")) {
+                lessonProgress = (correctAnswers.lesson2 / totalAttempts.lesson2) * 100;
+            }
+            progressBar.style.width = lessonProgress + "%";
+            progressBar.textContent = lessonProgress.toFixed(0) + "%";
+        }
+
+        // Function to prompt the next letter in the alphabet
+        function promptNextLetter() {
+            let nextLetter = alphabet.shift();
+            if (wrongAnswers[nextLetter]) {
+                nextLetter = wrongAnswers[nextLetter];
+            }
+            currentWord = nextLetter;
+            wordDisplay.textContent = `Display the correct ASL sign for: ${nextLetter}`;
+            alphabet.push(nextLetter);
+        }
+
+        // Function to prompt the next common English word
+        function promptNextWord() {
+            let nextWord = commonEnglishWords.shift();
+            if (wrongAnswers[nextWord]) {
+                nextWord = wrongAnswers[nextWord];
+            }
+            currentWord = nextWord;
+            wordDisplay.textContent = `Display the correct ASL sign for: ${nextWord}`;
+            commonEnglishWords.push(nextWord);
+        }
+
+        // Function to record wrong answers
+        function recordWrongAnswer(answer) {
+            if (!wrongAnswers[answer]) {
+                wrongAnswers[answer] = answer;
+            }
+        }
+
+        // Event listener for answer button
+        answerButton.addEventListener("click", function() {
+            const userAnswer = answerInput.value.trim();
+            const isCorrect = userAnswer.toLowerCase() === currentWord.toLowerCase();
+            handleUserInput(isCorrect);
+            answerInput.value = "";
+        });
+
+        // Function to handle user input and update progress
+        function handleUserInput(isCorrect) {
+            if (currentWord.startsWith("Letter: ")) {
+                totalAttempts.lesson1++;
+                if (isCorrect) {
+                    correctAnswers.lesson1++;
+                }
+            } else if (currentWord.startsWith("Word: ")) {
+                totalAttempts.lesson2++;
+                if (isCorrect) {
+                    correctAnswers.lesson2++;
+                }
+            }
+            resultMessage.textContent = isCorrect ? "Correct!" : "Incorrect, try again!";
+            resultMessage.style.color = isCorrect ? "green" : "red";
+            updateProgress();
+            if (currentWord.startsWith("Letter: ")) {
+                promptNextLetter();
+            } else if (currentWord.startsWith("Word: ")) {
+                promptNextWord();
+            }
         }
     </script>
 
