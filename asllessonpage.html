@@ -258,6 +258,7 @@
 
         // Function to update progress bar
         function updateProgress() {
+            promptNextLetter();
             let lessonProgress;
             if (currentWord.startsWith("Letter: ")) {
                 lessonProgress = (correctAnswers.lesson1 / totalAttempts.lesson1) * 100;
@@ -320,12 +321,12 @@
             }
             resultMessage.textContent = isCorrect ? "Correct!" : "Incorrect, try again!";
             resultMessage.style.color = isCorrect ? "green" : "red";
-            updateProgress();
-            if (currentWord.startsWith("Letter: ")) {
-                promptNextLetter();
-            } else if (currentWord.startsWith("Word: ")) {
-                promptNextWord();
-            }
+            if (isCorrect) updateProgress();
+            // if (currentWord.startsWith("Letter: ")) {
+            //     promptNextLetter();
+            // } else if (currentWord.startsWith("Word: ")) {
+            //     promptNextWord();
+            // }
         }
     </script>
 
