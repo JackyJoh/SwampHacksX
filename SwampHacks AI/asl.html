@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #e9ecef;
+            color: #212529;
+        }
+
+        header {
+            background-color: #005f73;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            gap: 1rem;
+        }
+
+        nav ul li {
+            display: inline;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 4rem 2rem;
+            background-color: #cce5e5;
+        }
+
+        .hero h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .hero button {
+            background-color: #005f73;
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .sections {
+            display: flex;
+            justify-content: space-around;
+            padding: 2rem;
+        }
+
+        .section {
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 1.5rem;
+            flex: 1;
+            margin: 0 1rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .section h3 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .section p{
+            font-size: 1rem;
+        }
+
+        footer {
+            background-color: #212529;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>SignPath</h1>
+        <nav>
+            <ul>
+                <li><a href="#">Home</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <h2>Learn ASL with Ease through AI-Powered Feedback</h2>
+        
+        <button>Get Started</button>
+    </section>
+
+    <section class="sections">
+        <div class="section">
+            <h3>Interactive Lessons</h3>
+            <p>Engage with dynamic lessons and track your progress.</p>
+        </div>
+        <div class="section">
+            <h3>Real-Time Feedback</h3>
+            <p>Check your knowledge with test mode.</p>
+        </div>
+        <div class="section">
+            <h3>Modern Learning</h3>
+            <p>Harness the power of computer vision and AI.</p>
+        </div>
+    </section>
+
+    <script>
+        document.querySelector('button').addEventListener('click', function() {
+            window.location.href = 'asllessonpage.html';
+            
+        });
+    </script>
+    
+</body>
+</html>
