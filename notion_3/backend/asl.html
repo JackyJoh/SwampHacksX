@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASL Recognition Camera Feed</title>
+    <style>
+        body {
+            background-color: #f0f0f0;
+            color: #333;
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 20px;
+            background-image: linear-gradient(45deg, #e8e8e8 25%, transparent 25%),
+                            linear-gradient(-45deg, #e8e8e8 25%, transparent 25%),
+                            linear-gradient(45deg, transparent 75%, #e8e8e8 75%),
+                            linear-gradient(-45deg, transparent 75%, #e8e8e8 75%);
+            background-size: 20px 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            border: 2px solid #333;
+            background-color: #fff;
+        }
+        #videoElement {
+            width: 100%;
+            max-width: 640px;
+            border: 3px solid #333;
+            margin: 20px 0;
+            image-rendering: pixelated;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #fff;
+            color: #333;
+            border: 2px solid #333;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s;
+            position: relative;
+        }
+        button:hover {
+            background-color: #333;
+            color: #fff;
+        }
+        button:active {
+            top: 2px;
+        }
+        .result-display {
+            margin-top: 20px;
+            padding: 15px;
+            border: 2px solid #333;
+            background-color: #fff;
+            position: relative;
+        }
+        .result-display::before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: -5px;
+            bottom: -5px;
+            background: repeating-linear-gradient(
+                45deg,
+                #333,
+                #333 2px,
+                transparent 2px,
+                transparent 4px
+            );
+            z-index: -1;
+        }
+        .letter {
+            font-size: 72px;
+            font-weight: bold;
+            margin: 10px 0;
+            font-family: 'Press Start 2P', 'Courier New', monospace;
+        }
+        h1, h2 {
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            display: inline-block;
+        }
+        h1::after, h2::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -5px;
+            height: 2px;
+            background: #333;
+        }
+        #confidence {
+            font-size: 18px;
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+        }
+        .status-bar {
+            border: 1px solid #333;
+            padding: 5px;
+            margin-top: 10px;
+            font-size: 14px;
+            text-align: left;
+            background: #fff;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ASL Sign Language Recognition</h1>
+        <div class="video-container">
+            <video id="videoElement" autoplay playsinline></video>
+        </div>
+        <div class="controls">
+            <button id="toggleCamera">Start Camera</button>
+        </div>
+        <div class="result-display">
+            <h2>Detected Sign</h2>
+            <div class="letter" id="detectedLetter">-</div>
+            <div id="confidence">Confidence: 0%</div>
+        </div>
+    </div>
+
+    <script>
+        const video = document.getElementById('videoElement');
+        const toggleButton = document.getElementById('toggleCamera');
+        const detectedLetter = document.getElementById('detectedLetter');
+        const confidenceDisplay = document.getElementById('confidence');
+        let stream = null;
+        let isStreaming = false;
+
+        toggleButton.addEventListener('click', async () => {
+            if (!isStreaming) {
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    video.srcObject = stream;
+                    isStreaming = true;
+                    toggleButton.textContent = 'Stop Camera';
+                    startSignDetection();
+                } catch (err) {
+                    console.error('Error accessing camera:', err);
+                    alert('Error accessing camera. Please make sure you have a webcam connected.');
+                }
+            } else {
+                stopCamera();
+            }
+        });
+
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                video.srcObject = null;
+                isStreaming = false;
+                toggleButton.textContent = 'Start Camera';
+                detectedLetter.textContent = '-';
+                confidenceDisplay.textContent = 'Confidence: 0%';
+            }
+        }
+
+        async function startSignDetection() {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+
+            async function detectSign() {
+                if (!isStreaming) return;
+
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                context.drawImage(video, 0, 0);
+
+                try {
+                    const response = await fetch('http://localhost:5000/predict', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            frame: canvas.toDataURL('image/jpeg')
+                        })
+                    });
+
+                    const data = await response.json();
+                    if (data.letter) {
+                        detectedLetter.textContent = data.letter;
+                        confidenceDisplay.textContent = `Confidence: ${(data.confidence * 100).toFixed(1)}%`;
+                    }
+                } catch (error) {
+                    console.error('Error during prediction:', error);
+                }
+
+                requestAnimationFrame(detectSign);
+            }
+
+            detectSign();
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            stopCamera();
+        });
+    </script>
+</body>
+</html>
