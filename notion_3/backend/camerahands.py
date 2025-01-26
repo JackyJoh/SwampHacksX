@@ -14,7 +14,12 @@ hands = mphands.Hands()
 mp_drawing = mp.solutions.drawing_utils
 cap = cv2.VideoCapture(0)
 
-_, frame = cap.read()
+# Attempt to capture a frame to initialize dimensions
+ret, frame = cap.read()
+if not ret:
+    print("Failed to capture an initial frame. Exiting...")
+    cap.release()
+    exit()
 
 h, w, c = frame.shape
 
@@ -60,7 +65,10 @@ def display_prediction(frame, letter, confidence):
     cv2.putText(frame, text, (10, 30), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
 
 while True:
-    _, frame = cap.read()
+    ret, frame = cap.read()
+    if not ret:
+        print("Failed to capture image")
+        continue
 
     framergb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     result = hands.process(framergb)
