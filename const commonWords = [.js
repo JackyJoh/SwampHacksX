@@ -1,21 +1,9 @@
-const commonWords = [
-    "hello", "goodbye", "please", "thank you", "sorry", "yes", "no", "good morning", "good night", "how are you",
-    "fine", "help", "stop", "go", "wait", "come", "sit", "stand", "walk", "run",
-    "eat", "drink", "sleep", "wake up", "read", "write", "listen", "speak", "look", "see",
-    "hear", "touch", "smell", "taste", "feel", "think", "know", "understand", "remember", "forget",
-    "love", "like", "hate", "want", "need", "have", "give", "take", "make", "do",
-    "work", "play", "study", "learn", "teach", "buy", "sell", "pay", "borrow", "lend",
-    "open", "close", "turn on", "turn off", "start", "finish", "begin", "end", "win", "lose",
-    "find", "lose", "break", "fix", "build", "destroy", "create", "draw", "paint", "sing",
-    "dance", "jump", "swim", "fly", "drive", "ride", "walk", "run", "climb", "fall",
-    "laugh", "cry", "smile", "frown", "shout", "whisper", "talk", "yell", "scream", "whistle"
-];
+
 
 const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
 let progress = { lesson1: 0, lesson2: 0 };
 let mode = "";
-let currentWord = "";
 let currentLetter = "";
 let currentIndex = 0;
 let correctAnswers = 0;
@@ -170,7 +158,7 @@ const express = require('express');
 const app = express();
 const port = 3000;
 
-let currentLetter = 'A';
+currentLetter = 'A';
 
 app.use(express.json());
 
